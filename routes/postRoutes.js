@@ -6,6 +6,46 @@ const authenticateUser = require('../middleware/jwtAuthentication')
 // Middleware
 const authenticate = require('../middleware/jwtAuthentication')
 
+// Get All Posts by Author Route
+router.get('/author/:authorId', async (req, res) => {
+    const { authorId } = req.params
+
+    try {
+        // Find all posts by the given author ID
+        const posts = await Post.find({ author: authorId }).populate('author', 'username email')
+
+        // Check if no posts are found for the author
+        if (!posts.length) {
+            return res.status(404).json({ message: 'No posts found for this author.' })
+        }
+
+        // Send the posts as a response
+        res.status(200).json({ posts })
+    } catch (err) {
+        console.error('Error fetching posts by author:', err)
+        res.status(500).json({ message: 'Error fetching posts by author.' })
+    }
+})
+
+// Get All Posts Route
+router.get('/all', async (req, res) => {
+    try {
+        // Fetch all posts from the database
+        const posts = await Post.find().populate('author', 'username email') // Populate author info (optional)
+
+        // Check if there are no posts
+        if (!posts.length) {
+            return res.status(404).json({ message: 'No posts found.' })
+        }
+
+        // Send the posts as a response
+        res.status(200).json({ posts })
+    } catch (err) {
+        console.error('Error fetching posts:', err)
+        res.status(500).json({ message: 'Error fetching posts.' })
+    }
+})
+
 // Get Post by ID
 router.get('/:id', async (req, res) => {
     const postId = req.params.id
